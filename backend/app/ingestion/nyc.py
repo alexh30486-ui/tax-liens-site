@@ -1,61 +1,31 @@
 """
-NYC Tax Lien Sale List — Ingestion Script (Python)
+NYC Tax Lien Sale List ingestion.
 
 Source: NYC Open Data (Socrata) — Tax Lien Sale Lists dataset
   https://data.cityofnewyork.us/dataset/tax-lien-sale-lists
 
-Design goals:
-  - Never crash on a malformed/missing field — log + skip that row, keep going.
-  - Store the full raw record in raw_payload so schema drift never loses data.
-  - Upsert on (county, state, parcel_id) so re-running is safe (idempotent).
-  - Retry with backoff on rate limiting (Socrata 429s).
-
-Run: python ingest.py
+Kept synchronous (psycopg2) deliberately — this runs as a standalone
+batch job (cron/manual), not inside the async web server, so there's
+no benefit to asyncio here and it stays simpler to read and debug.
 """
 
-import os
-import time
-import logging
 import json
+import logging
+from typing import Optional
 
-import requests
 import psycopg2
-import psycopg2.extras
 
-logging.basicConfig(level=logging.INFO)
-log = logging.getLogger("ingest")
+from app.ingestion.common import fetch_json_with_backoff
 
-DATABASE_URL = os.environ["DATABASE_URL"]
-SOCRATA_ENDPOINT = os.environ.get(
-    "NYC_LIEN_ENDPOINT", "https://data.cityofnewyork.us/resource/9rz4-mjek.json"
-)
-APP_TOKEN = os.environ.get("SOCRATA_APP_TOKEN", "")
+log = logging.getLogger(__name__)
 
 PAGE_LIMIT = 1000
-MAX_RETRIES = 4
+SOURCE_URL = "https://data.cityofnewyork.us/dataset/tax-lien-sale-lists"
 
 
-def fetch_page(offset: int) -> list:
-    params = {"$limit": PAGE_LIMIT, "$offset": offset}
-    headers = {"X-App-Token": APP_TOKEN} if APP_TOKEN else {}
-
-    for attempt in range(MAX_RETRIES + 1):
-        resp = requests.get(SOCRATA_ENDPOINT, params=params, headers=headers, timeout=30)
-
-        if resp.status_code == 429 or resp.status_code >= 500:
-            backoff = (2 ** attempt) * 0.5
-            log.warning("status %s, retrying in %.1fs", resp.status_code, backoff)
-            time.sleep(backoff)
-            continue
-
-        resp.raise_for_status()
-        return resp.json()
-
-    raise RuntimeError("Exceeded max retries fetching page")
-
-
-def normalize_record(raw: dict):
-    """Returns (property_dict, lien_dict) or None if the row can't be used."""
+def normalize_record(raw: dict) -> Optional[tuple[dict, dict]]:
+    """Returns (property_dict, lien_dict), or None if the row can't be used.
+    Never raises — a malformed row is logged and skipped, not fatal."""
     try:
         parcel_id = raw.get("boro_block_lot") or raw.get("parcel_id") or raw.get("bbl")
         lien_amount_raw = raw.get("total_amount_due") or raw.get("lien_amount")
@@ -65,14 +35,15 @@ def normalize_record(raw: dict):
             log.warning("skipping row — missing parcel id or lien amount: %s", raw)
             return None
 
-        address = None
         if raw.get("house_number") and raw.get("street_name"):
             address = f"{raw['house_number']} {raw['street_name']}"
         else:
             address = raw.get("address")
 
-        assessed_value = raw.get("assessed_value")
-        assessed_value = float(assessed_value) if assessed_value not in (None, "") else None
+        assessed_value_raw = raw.get("assessed_value")
+        assessed_value = (
+            float(assessed_value_raw) if assessed_value_raw not in (None, "") else None
+        )
 
         property_dict = {
             "parcel_id": str(parcel_id),
@@ -90,7 +61,7 @@ def normalize_record(raw: dict):
             "interest_rate": float(raw["interest_rate"]) if raw.get("interest_rate") else None,
             "auction_date": raw.get("lien_sale_date"),
             "lien_status": "active",
-            "source_county_url": "https://data.cityofnewyork.us/dataset/tax-lien-sale-lists",
+            "source_county_url": SOURCE_URL,
             "raw_payload": json.dumps(raw),
         }
 
@@ -101,7 +72,7 @@ def normalize_record(raw: dict):
         return None
 
 
-def upsert_record(cur, property_dict: dict, lien_dict: dict):
+def upsert_record(cur, property_dict: dict, lien_dict: dict) -> None:
     cur.execute(
         """
         INSERT INTO properties
@@ -121,7 +92,6 @@ def upsert_record(cur, property_dict: dict, lien_dict: dict):
     )
     property_id = cur.fetchone()[0]
 
-    lien_dict = {**lien_dict, "property_id": property_id}
     cur.execute(
         """
         INSERT INTO tax_liens
@@ -130,21 +100,24 @@ def upsert_record(cur, property_dict: dict, lien_dict: dict):
         VALUES (%(property_id)s, %(lien_amount)s, %(interest_rate)s, %(auction_date)s,
                 %(lien_status)s, %(source_county_url)s, %(raw_payload)s)
         """,
-        lien_dict,
+        {**lien_dict, "property_id": property_id},
     )
 
 
-def run():
-    conn = psycopg2.connect(DATABASE_URL)
+def run(database_url: str, endpoint: str, app_token: str = "") -> None:
+    conn = psycopg2.connect(database_url)
     conn.autocommit = False
 
     offset = 0
     total_ingested = 0
     total_skipped = 0
+    headers = {"X-App-Token": app_token} if app_token else {}
 
     try:
         while True:
-            page = fetch_page(offset)
+            page = fetch_json_with_backoff(
+                endpoint, params={"$limit": PAGE_LIMIT, "$offset": offset}, headers=headers
+            )
             if not page:
                 break
 
@@ -170,7 +143,3 @@ def run():
         conn.close()
 
     log.info("done. ingested=%d skipped=%d", total_ingested, total_skipped)
-
-
-if __name__ == "__main__":
-    run()

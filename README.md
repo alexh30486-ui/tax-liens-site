@@ -53,6 +53,31 @@ still returns fine, just without the summary. This is deliberate: your
 core product (accurate filtering) never depends on an external AI call
 succeeding.
 
+## Backend structure
+
+```
+backend/
+  app/
+    main.py           # FastAPI app + lifespan (startup/shutdown)
+    config.py         # env var validation (pydantic-settings)
+    db.py             # Postgres pool lifecycle
+    schemas.py        # response models (validation + auto docs at /docs)
+    routers/
+      listings.py     # GET /api/listings, POST /api/listings/{id}/enrich
+    services/
+      gemini.py       # enrichment only — never in the filtering path
+    ingestion/
+      common.py       # shared retry/backoff fetch helper
+      nyc.py           # NYC-specific normalization + upsert
+  scripts/
+    run_ingest.py     # CLI entrypoint for ingestion
+  schema.sql
+  requirements.txt
+```
+
+Adding a second county later means one new file in `app/ingestion/`
+that reuses `common.py` — the API, schema, and CLI script don't change.
+
 ## Setup — run this now
 
 1. **Get a free Postgres instance.**
@@ -61,12 +86,13 @@ succeeding.
 
 2. **Apply the schema.**
    ```bash
+   cd backend
    psql "$DATABASE_URL" -f schema.sql
    ```
 
 3. **Copy env vars and fill them in.**
    ```bash
-   cp .env.example .env
+   cp ../.env.example .env
    # edit .env with your DATABASE_URL and GEMINI_API_KEY
    ```
 
@@ -78,17 +104,16 @@ succeeding.
 
 5. **Run the ingestion script.**
    ```bash
-   export $(cat .env | xargs)
-   python ingest.py
+   python scripts/run_ingest.py
    ```
    Check the log line at the end — `ingested=N skipped=N`. Some skips
    are expected (rows missing assessed value or lien amount); a skip
    rate over ~30% means the dataset's field names likely changed and
-   `normalize_record()` needs updating.
+   `app/ingestion/nyc.py`'s `normalize_record()` needs updating.
 
 6. **Run the API.**
    ```bash
-   uvicorn main:app --reload --port 8000
+   uvicorn app.main:app --reload --port 8000
    ```
 
 7. **Test it.**
@@ -96,7 +121,9 @@ succeeding.
    curl "http://localhost:8000/api/listings?min_ratio=3&limit=10"
    ```
    You should get back real NYC properties with their computed
-   value-to-lien ratios. That's the core product working.
+   value-to-lien ratios. Visit `http://localhost:8000/docs` for the
+   interactive API docs FastAPI generates automatically from
+   `schemas.py`.
 
 ## What's deliberately not built yet
 
