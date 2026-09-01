@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.env
+
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/.terraform.lock.hcl
+terraform/terraform.tfvars
+
+# OS
+.DS_Store
