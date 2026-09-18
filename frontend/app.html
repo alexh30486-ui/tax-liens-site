@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Tax Lien Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<nav class="nav">
+  <a class="nav__mark" href="app.html">Tax Lien Finder</a>
+  <div class="nav__actions">
+    <span class="nav__user" id="navUser"></span>
+    <button type="button" class="nav__link" id="logoutBtn">Log out</button>
+  </div>
+</nav>
+
+<div class="app-shell">
+  <header class="app-header">
+    <div>
+      <h1 class="app-header__title">Listings</h1>
+      <p class="app-header__sub">Filter by value-to-lien ratio. Numbers come from the database, not a proprietary score.</p>
+    </div>
+  </header>
+
+  <div class="filters">
+    <div class="form-group" style="flex:1; min-width:180px">
+      <label class="form-label" for="searchQuery">Search (Meilisearch)</label>
+      <input class="form-input" type="search" id="searchQuery" placeholder="Address, city, parcel…">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="minRatio">Min ratio</label>
+      <input class="form-input" type="number" id="minRatio" min="0" step="0.1" value="2" placeholder="2">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="stateFilter">State</label>
+      <input class="form-input" type="text" id="stateFilter" placeholder="NY" maxlength="2">
+    </div>
+    <button type="button" class="btn btn-primary btn-sm" id="applyFilters">Search / Apply</button>
+  </div>
+
+  <p class="status-bar" id="statusBar"></p>
+  <p class="status-bar" style="margin-top:-8px">Mode: <strong id="searchMode">SQL</strong> · empty search uses SQL filter; typed query uses Meilisearch</p>
+  <div class="listing-grid" id="listingGrid"></div>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal__head">
+      <div>
+        <p class="listing-card__addr" id="modalAddr"></p>
+        <p class="listing-card__loc" id="modalLoc"></p>
+      </div>
+      <button type="button" class="modal__close" id="modalClose" aria-label="Close">×</button>
+    </div>
+    <div class="listing-card__figures">
+      <div>
+        <p class="listing-card__figure-label">Ratio</p>
+        <p class="listing-card__figure-value" id="modalRatio"></p>
+      </div>
+      <div>
+        <p class="listing-card__figure-label">Assessed</p>
+        <p class="listing-card__figure-value" id="modalAssessed"></p>
+      </div>
+      <div>
+        <p class="listing-card__figure-label">Lien</p>
+        <p class="listing-card__figure-value" id="modalLien"></p>
+      </div>
+      <div>
+        <p class="listing-card__figure-label">Interest</p>
+        <p class="listing-card__figure-value" id="modalInterest"></p>
+      </div>
+    </div>
+    <p class="modal__summary" id="modalSummary"></p>
+    <button type="button" class="btn btn-secondary btn-sm" id="enrichBtn">Generate AI summary</button>
+    <p class="modal__meta">
+      <a id="modalSource" href="#" target="_blank" rel="noopener">County source</a>
+    </p>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

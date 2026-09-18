@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tax Lien Finder — Liens worth more than they cost</title>
+<meta name="description" content="Screen tax lien opportunities from public county records. Every listing gets a value-to-lien ratio computed in SQL, with optional AI summary.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="page">
+  <nav class="nav">
+    <a class="nav__mark" href="index.html">Tax Lien Finder</a>
+    <div class="nav__actions">
+      <a class="nav__link" href="login.html">Log in</a>
+      <a class="btn btn-primary btn-sm" href="signup.html">Sign up</a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <p class="hero__stat">3.4x</p>
+      <p class="hero__stat-label">Example value-to-lien ratio from public NYC data</p>
+      <h1 class="hero__headline">Liens worth more than they cost.</h1>
+      <p class="hero__sub">We pull tax lien records from county sources and score every one by assessed value over lien amount — plain SQL, not a black-box score.</p>
+      <div class="hero__ctas">
+        <a href="signup.html" class="btn btn-primary">Start screening free</a>
+        <a href="login.html" class="btn btn-secondary">Log in to dashboard</a>
+      </div>
+    </section>
+
+    <section class="section section--alt">
+      <h2 class="section__title">How it works</h2>
+      <p class="section__intro">Three steps. The math is visible on every listing.</p>
+      <div class="ledger">
+        <div class="ledger-row">
+          <span class="ledger-row__num">01</span>
+          <div>
+            <p class="ledger-row__title">Pull the records</p>
+            <p class="ledger-row__body">Ingest lien and assessment data from county open data (NYC Socrata first).</p>
+          </div>
+        </div>
+        <div class="ledger-row">
+          <span class="ledger-row__num">02</span>
+          <div>
+            <p class="ledger-row__title">Score the ratio</p>
+            <p class="ledger-row__body">Every active lien gets value ÷ amount in Postgres. Filter in SQL.</p>
+          </div>
+        </div>
+        <div class="ledger-row">
+          <span class="ledger-row__num">03</span>
+          <div>
+            <p class="ledger-row__title">Read the summary</p>
+            <p class="ledger-row__body">Optional Gemini note flags ratio and obvious risk next to the raw numbers.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section__title">Built for DIY investors</h2>
+      <p class="section__intro">Screen by margin before you dig into county PDFs. Free while in beta.</p>
+      <a href="signup.html" class="btn btn-primary">Create account</a>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Tax Lien Finder is a screening tool, not investment advice. Verify all figures against the county record before bidding. Tax lien investing carries risk of total loss of principal.
+  </footer>
+</div>
+<script>
+  // If already logged in, offer a path to the app
+  if (localStorage.getItem('tlf_access_token')) {
+    const actions = document.querySelector('.nav__actions');
+    if (actions) {
+      actions.innerHTML = '<a class="btn btn-primary btn-sm" href="app.html">Open dashboard</a>';
+    }
+  }
+</script>
+</body>
+</html>

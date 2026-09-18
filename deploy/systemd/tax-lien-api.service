@@ -1,0 +1,38 @@
+[Unit]
+Description=Tax Lien Finder API (Gunicorn + Uvicorn workers)
+After=network.target postgresql.service docker.service
+Wants=network-online.target
+
+[Service]
+Type=notify
+User=tlf
+Group=tlf
+WorkingDirectory=/opt/tax-lien-finder/backend
+EnvironmentFile=-/opt/tax-lien-finder/backend/.env
+Environment=PYTHONPATH=/opt/tax-lien-finder/backend/src
+# Secrets come ONLY from EnvironmentFile (.env) — never hardcode here
+ExecStart=/opt/tax-lien-finder/backend/.venv/bin/gunicorn \
+    -c /opt/tax-lien-finder/deploy/gunicorn/gunicorn.conf.py \
+    app.main:app
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=30
+Restart=on-failure
+RestartSec=5
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/tax-lien-finder
+CapabilityBoundingSet=
+AmbientCapabilities=
+LockPersonality=true
+MemoryDenyWriteExecute=false
+RestrictRealtime=true
+RestrictSUIDSGID=true
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target

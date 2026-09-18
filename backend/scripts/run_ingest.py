@@ -1,23 +1,34 @@
+#!/usr/bin/env python3
 """
-CLI entrypoint. Run from the backend/ directory: python scripts/run_ingest.py
+Ingest NYC tax lien records into Postgres.
+
+Usage (from backend/):
+  PYTHONPATH=src python scripts/run_ingest.py
 """
+
+from __future__ import annotations
 
 import logging
 import os
 import sys
 
-# Ensure backend/ is on sys.path regardless of the cwd this is invoked from.
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Allow running without installing the package
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from app.config import get_settings  # noqa: E402
-from app.ingestion import nyc  # noqa: E402
+from app.config import get_settings
+from app.ingestion.nyc import run
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
-if __name__ == "__main__":
+
+def main() -> None:
     settings = get_settings()
-    nyc.run(
+    run(
         database_url=settings.database_url,
         endpoint=settings.nyc_lien_endpoint,
         app_token=settings.socrata_app_token,
     )
+
+
+if __name__ == "__main__":
+    main()
