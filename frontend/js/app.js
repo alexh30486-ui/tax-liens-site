@@ -1,4 +1,13 @@
 /** Dashboard: SQL list + Meilisearch full-text search + detail enrich */
+import {
+  API_BASE,
+  clearToken,
+  enrichListing,
+  fetchListings,
+  getToken,
+  me,
+  searchListings,
+} from "./api.js";
 
 function money(n) {
   if (n == null || Number.isNaN(Number(n))) return '—';
@@ -15,7 +24,7 @@ function ratioLabel(r) {
 }
 
 function requireAuth() {
-  if (!window.TLF.getToken()) {
+  if (!getToken()) {
     window.location.href = 'login.html';
     return false;
   }
@@ -24,11 +33,11 @@ function requireAuth() {
 
 async function loadUser() {
   try {
-    const user = await window.TLF.me();
+    const user = await me();
     const el = document.getElementById('navUser');
     if (el) el.textContent = user.email;
   } catch {
-    window.TLF.clearToken();
+    clearToken();
     window.location.href = 'login.html';
   }
 }
@@ -81,12 +90,12 @@ async function loadListings() {
   try {
     let data;
     if (q) {
-      data = await window.TLF.searchListings({ q, minRatio, state, limit: 100 });
+      data = await searchListings({ q, minRatio, state, limit: 100 });
       if (mode) mode.textContent = 'Meilisearch';
       status.textContent = `${data.count} result${data.count === 1 ? '' : 's'} for “${q}” · ratio ≥ ${minRatio || 0}`;
       currentListings = data.listings || [];
     } else {
-      data = await window.TLF.fetchListings({ minRatio, state, limit: 100 });
+      data = await fetchListings({ minRatio, state, limit: 100 });
       if (mode) mode.textContent = 'SQL';
       status.textContent = `${data.count} listing${data.count === 1 ? '' : 's'} · ratio ≥ ${minRatio || 0}`;
       currentListings = data.listings || [];
@@ -103,7 +112,7 @@ async function loadListings() {
     });
   } catch (err) {
     status.textContent = '';
-    grid.innerHTML = `<div class="empty-state">Could not load listings.<br>${escapeHtml(err.message)}<br><span style="font-size:12px">API: ${escapeHtml(window.TLF.API_BASE || '(same origin)')}</span></div>`;
+    grid.innerHTML = `<div class="empty-state">Could not load listings.<br>${escapeHtml(err.message)}<br><span style="font-size:12px">API: ${escapeHtml(API_BASE || '(same origin)')}</span></div>`;
   }
 }
 
@@ -150,7 +159,7 @@ async function runEnrich() {
   summaryEl.textContent = 'Asking Gemini…';
 
   try {
-    const data = await window.TLF.enrichListing(lienId);
+    const data = await enrichListing(lienId);
     summaryEl.textContent =
       data.ai_summary ||
       'No summary returned (set GEMINI_API_KEY on the server, or the model call failed).';
@@ -167,7 +176,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadUser();
 
   document.getElementById('logoutBtn')?.addEventListener('click', () => {
-    window.TLF.clearToken();
+    clearToken();
     window.location.href = 'index.html';
   });
 

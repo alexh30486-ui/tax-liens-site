@@ -5,6 +5,10 @@ __pycache__/
 venv/
 .env
 
+# Frontend build tooling
+frontend/node_modules/
+frontend/dist/
+
 # OS
 .DS_Store
 

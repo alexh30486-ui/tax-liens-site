@@ -29,7 +29,7 @@ else
   SUDO=(sudo --non-interactive)
 fi
 
-for command in git curl tar "$PYTHON_BIN" nginx systemctl; do
+for command in git curl tar "$PYTHON_BIN" nginx systemctl node corepack; do
   command -v "$command" >/dev/null || { echo "Missing required command: $command" >&2; exit 2; }
 done
 
@@ -51,6 +51,10 @@ ln -s "$SHARED_DIR/backend.env" "$release_dir/backend/.env"
 "$release_dir/backend/.venv/bin/python" -m pip install --disable-pip-version-check --upgrade pip
 "$release_dir/backend/.venv/bin/python" -m pip install --disable-pip-version-check -r "$release_dir/backend/requirements.txt"
 PYTHONPATH="$release_dir/backend/src" "$release_dir/backend/.venv/bin/python" -m compileall -q "$release_dir/backend/src"
+
+corepack enable
+corepack pnpm --dir "$release_dir/frontend" install --frozen-lockfile
+corepack pnpm --dir "$release_dir/frontend" build
 
 active_port=""
 if [[ -f "$UPSTREAM_FILE" ]]; then

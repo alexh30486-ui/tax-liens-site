@@ -1,4 +1,5 @@
 /** Shared logic for signup.html and login.html */
+import { login, signup } from "./api.js";
 
 function showError(el, message) {
   if (!el) return;
@@ -55,9 +56,9 @@ function wireAuthForm({ mode }) {
 
     try {
       if (mode === 'signup') {
-        await window.TLF.signup(email, password);
+        await signup(email, password);
       } else {
-        await window.TLF.login(email, password);
+        await login(email, password);
       }
       window.location.href = 'app.html';
     } catch (err) {

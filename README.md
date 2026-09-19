@@ -7,7 +7,8 @@ Stack for real deployment:
 | Layer | Choice |
 |--------|--------|
 | API | FastAPI + **Gunicorn** + **Uvicorn** workers |
-| Proxy | **Nginx** (static frontend + `/api` reverse proxy + security headers) |
+| Frontend | Static multi-page app built with **Vite + pnpm** |
+| Proxy | **Nginx** (built static frontend + `/api` reverse proxy + security headers) |
 | Process | **systemd** unit (`tax-lien-api.service`) |
 | DB | Postgres (Docker / Supabase / Neon) |
 | Search | **Meilisearch** (Docker or systemd) |
@@ -51,10 +52,20 @@ uvicorn app.main:app --reload --port 8000 --app-dir src
 ```
 
 ```bash
-# 3) Frontend
+# 3) Frontend (pnpm + Vite)
 cd frontend
-python3 -m http.server 8080
+corepack enable
+pnpm install
+pnpm dev
 # http://localhost:8080 → signup → dashboard → search
+```
+
+Build the exact production artifact locally:
+
+```bash
+cd frontend
+pnpm test       # validates HTML/JS, then builds
+pnpm preview    # serves frontend/dist
 ```
 
 ### Gunicorn (closer to prod)

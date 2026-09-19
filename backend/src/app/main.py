@@ -70,6 +70,16 @@ app.include_router(listings.router)
 app.include_router(search.router)
 
 
+@app.get("/")
+async def root():
+    return {
+        "name": "Tax Lien Finder API",
+        "status": "ok",
+        "health": "/health",
+        "docs": "/docs",
+    }
+
+
 @app.get("/health")
 async def health():
     settings = get_settings()

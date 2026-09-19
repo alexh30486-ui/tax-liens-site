@@ -37,6 +37,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers.setdefault("Cross-Origin-Opener-Policy", "same-origin")
         response.headers.setdefault("Cross-Origin-Resource-Policy", "same-site")
 
+        # API responses may contain account or investment-screening data.
+        response.headers.setdefault("Cache-Control", "no-store")
+
         # Observability / debugging (non-sensitive)
         response.headers.setdefault("X-Request-Id", request.headers.get("X-Request-Id", ""))
         response.headers.setdefault("X-App-Env", settings.app_env)

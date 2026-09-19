@@ -1,0 +1,1 @@
+90005	IGNORE	(Sec-Fetch-Dest is a browser-generated request header; the ZAP CI client does not send it)

@@ -1,0 +1,21 @@
+{
+  "name": "tax-lien-finder-frontend",
+  "private": true,
+  "version": "2.1.0",
+  "description": "Tax Lien Finder static multi-page frontend",
+  "packageManager": "pnpm@12.4.2",
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=12.0.0"
+  },
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "validate": "node --check js/api.js && node --check js/app.js && node --check js/auth-pages.js && python3 ../scripts/validate_frontend.py",
+    "test": "node --check js/api.js && node --check js/app.js && node --check js/auth-pages.js && python3 ../scripts/validate_frontend.py && vite build"
+  },
+  "devDependencies": {
+    "vite": "7.3.6"
+  }
+}

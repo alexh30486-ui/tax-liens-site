@@ -30,9 +30,9 @@ in a later commit does not remove it from Git history.
 - **SAST:** Bandit scans `backend/src/app` and Python byte-compilation catches
   syntax errors.
 - **SCA:** `pip-audit --strict` blocks known vulnerable Python dependencies.
-- **Frontend validation:** validates local links, duplicate IDs, CSS braces, and
-  inline JavaScript. The frontend is static HTML/CSS/JS, so an npm audit would
-  provide no coverage until a `package.json` actually exists.
+- **Frontend build and SCA:** Corepack installs the pinned pnpm version,
+  `pnpm audit --audit-level=high` checks frontend dependencies, and Vite
+  validates and produces the multi-page `frontend/dist` production artifact.
 - **DAST:** starts Postgres, Meilisearch, and FastAPI, runs the security-header
   smoke test, then runs the OWASP ZAP baseline against the live API.
 
@@ -100,11 +100,12 @@ The deploy job sends only the commit SHA. On the server, `scripts/deploy.sh`:
 
 1. extracts that exact commit into a new immutable release;
 2. creates an isolated virtual environment and validates Python syntax;
-3. starts the inactive blue/green Gunicorn slot;
-4. health-checks the inactive slot directly;
-5. atomically switches the frontend symlink and nginx upstream;
-6. gracefully reloads nginx and checks the public `/health` route; and
-7. restores the former release and upstream automatically if the check fails.
+3. installs the locked pnpm dependencies and builds `frontend/dist`;
+4. starts the inactive blue/green Gunicorn slot;
+5. health-checks the inactive slot directly;
+6. atomically switches the frontend symlink and nginx upstream;
+7. gracefully reloads nginx and checks the public `/health` route; and
+8. restores the former release and upstream automatically if the check fails.
 
 Keep at least two releases so rollback remains available. Remove older release
 directories only after confirming they are not the `current` target and are not

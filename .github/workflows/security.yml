@@ -43,6 +43,16 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r backend/requirements.txt
           python -m pip install bandit pip-audit pre-commit
+      - name: Set up Node and pnpm
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+      - name: Install and test frontend
+        run: |
+          corepack enable
+          pnpm --dir frontend install --frozen-lockfile
+          pnpm --dir frontend audit --audit-level=high
+          pnpm --dir frontend test
       - name: Pre-commit checks
         env:
           SKIP: gitleaks
@@ -53,8 +63,6 @@ jobs:
         run: bandit -r backend/src/app -ll -x '*/tests/*,*/__pycache__/*'
       - name: Python dependency CVE gate
         run: pip-audit -r backend/requirements.txt --strict
-      - name: Static frontend validation
-        run: python scripts/validate_frontend.py
 
   dast:
     name: API smoke test and DAST
@@ -124,6 +132,7 @@ jobs:
         uses: zaproxy/action-baseline@v0.15.0
         with:
           target: http://127.0.0.1:8000
+          rules_file_name: .zap/rules.tsv
           fail_action: true
           allow_issue_writing: false
           cmd_options: -a

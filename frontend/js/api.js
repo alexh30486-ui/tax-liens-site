@@ -100,7 +100,7 @@ async function enrichListing(lienId) {
   return api(`/api/listings/${encodeURIComponent(lienId)}/enrich`, { method: 'POST' });
 }
 
-window.TLF = {
+export {
   API_BASE,
   getToken,
   setToken,
