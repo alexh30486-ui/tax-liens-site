@@ -1,88 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#f5f5f2">
 <title>Dashboard — Tax Lien Finder</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
-<nav class="nav">
-  <a class="nav__mark" href="app.html">Tax Lien Finder</a>
-  <div class="nav__actions">
-    <span class="nav__user" id="navUser"></span>
-    <button type="button" class="nav__link" id="logoutBtn">Log out</button>
-  </div>
+<body class="app-page">
+<nav class="product-nav">
+  <a class="brand" href="app.html" aria-label="Tax Lien Finder dashboard"><span class="brand__symbol" aria-hidden="true">TL</span><span>Tax Lien Finder</span></a>
+  <div class="product-nav__actions"><span class="nav__user" id="navUser"></span><button type="button" class="product-nav__logout" id="logoutBtn">Log out <span aria-hidden="true">↗</span></button></div>
 </nav>
 
-<div class="app-shell">
-  <header class="app-header">
-    <div>
-      <h1 class="app-header__title">Listings</h1>
-      <p class="app-header__sub">Filter by value-to-lien ratio. Numbers come from the database, not a proprietary score.</p>
-    </div>
+<main class="dashboard-shell">
+  <header class="dashboard-header">
+    <div><p class="dashboard-kicker">Opportunity workspace</p><h1>Screen the margin.</h1><p>Search public records, set your threshold, and inspect the numbers before you investigate further.</p></div>
+    <div class="formula-card" aria-label="Value-to-lien formula"><span>VALUE</span><b>÷</b><span>LIEN</span><b>=</b><strong>RATIO</strong></div>
   </header>
 
-  <div class="filters">
-    <div class="form-group" style="flex:1; min-width:180px">
-      <label class="form-label" for="searchQuery">Search (Meilisearch)</label>
-      <input class="form-input" type="search" id="searchQuery" placeholder="Address, city, parcel…">
+  <section class="filter-panel" aria-label="Listing filters">
+    <div class="filter-panel__heading"><div><span>01</span><h2>Find opportunities</h2></div><p>Empty search uses SQL filtering. An address or parcel search uses Meilisearch.</p></div>
+    <div class="filters">
+      <div class="form-group filter-search"><label class="form-label" for="searchQuery">Address or parcel</label><input class="form-input" type="search" id="searchQuery" placeholder="Try Brooklyn or a parcel ID…"></div>
+      <div class="form-group"><label class="form-label" for="minRatio">Minimum ratio</label><div class="input-suffix"><input class="form-input" type="number" id="minRatio" min="0" step="0.1" value="2" placeholder="2"><span>×</span></div></div>
+      <div class="form-group filter-state"><label class="form-label" for="stateFilter">State</label><input class="form-input" type="text" id="stateFilter" placeholder="NY" maxlength="2"></div>
+      <button type="button" class="button button--dark filter-submit" id="applyFilters">Apply filters <span aria-hidden="true">→</span></button>
     </div>
-    <div class="form-group">
-      <label class="form-label" for="minRatio">Min ratio</label>
-      <input class="form-input" type="number" id="minRatio" min="0" step="0.1" value="2" placeholder="2">
-    </div>
-    <div class="form-group">
-      <label class="form-label" for="stateFilter">State</label>
-      <input class="form-input" type="text" id="stateFilter" placeholder="NY" maxlength="2">
-    </div>
-    <button type="button" class="btn btn-primary btn-sm" id="applyFilters">Search / Apply</button>
-  </div>
+  </section>
 
-  <p class="status-bar" id="statusBar"></p>
-  <p class="status-bar" style="margin-top:-8px">Mode: <strong id="searchMode">SQL</strong> · empty search uses SQL filter; typed query uses Meilisearch</p>
-  <div class="listing-grid" id="listingGrid"></div>
-</div>
+  <section class="results-section" aria-label="Tax lien listings">
+    <div class="results-bar"><div><span class="results-bar__pulse"></span><p class="status-bar" id="statusBar">Loading listings…</p></div><p>Query mode <strong id="searchMode">SQL</strong></p></div>
+    <div class="listing-grid" id="listingGrid"></div>
+  </section>
+</main>
 
-<div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true">
+<div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalAddr">
   <div class="modal">
-    <div class="modal__head">
-      <div>
-        <p class="listing-card__addr" id="modalAddr"></p>
-        <p class="listing-card__loc" id="modalLoc"></p>
-      </div>
-      <button type="button" class="modal__close" id="modalClose" aria-label="Close">×</button>
+    <div class="modal__eyebrow"><span>Opportunity detail</span><span class="status-chip"><span></span> Public record</span></div>
+    <div class="modal__head"><div><p class="listing-card__addr" id="modalAddr"></p><p class="listing-card__loc" id="modalLoc"></p></div><button type="button" class="modal__close" id="modalClose" aria-label="Close">×</button></div>
+    <div class="listing-card__figures modal__figures">
+      <div><p class="listing-card__figure-label">Ratio</p><p class="listing-card__figure-value" id="modalRatio"></p></div>
+      <div><p class="listing-card__figure-label">Assessed</p><p class="listing-card__figure-value" id="modalAssessed"></p></div>
+      <div><p class="listing-card__figure-label">Lien</p><p class="listing-card__figure-value" id="modalLien"></p></div>
+      <div><p class="listing-card__figure-label">Interest</p><p class="listing-card__figure-value" id="modalInterest"></p></div>
     </div>
-    <div class="listing-card__figures">
-      <div>
-        <p class="listing-card__figure-label">Ratio</p>
-        <p class="listing-card__figure-value" id="modalRatio"></p>
-      </div>
-      <div>
-        <p class="listing-card__figure-label">Assessed</p>
-        <p class="listing-card__figure-value" id="modalAssessed"></p>
-      </div>
-      <div>
-        <p class="listing-card__figure-label">Lien</p>
-        <p class="listing-card__figure-value" id="modalLien"></p>
-      </div>
-      <div>
-        <p class="listing-card__figure-label">Interest</p>
-        <p class="listing-card__figure-value" id="modalInterest"></p>
-      </div>
-    </div>
-    <p class="modal__summary" id="modalSummary"></p>
-    <button type="button" class="btn btn-secondary btn-sm" id="enrichBtn">Generate AI summary</button>
-    <p class="modal__meta">
-      <a id="modalSource" href="#" target="_blank" rel="noopener">County source</a>
-    </p>
+    <div class="ai-note"><span>AI note / optional</span><p class="modal__summary" id="modalSummary"></p><button type="button" class="button button--dark button--small" id="enrichBtn">Generate AI summary <span aria-hidden="true">✦</span></button></div>
+    <p class="modal__meta"><a id="modalSource" href="#" target="_blank" rel="noopener">Open county source <span aria-hidden="true">↗</span></a></p>
   </div>
 </div>
-
-<script src="js/api.js"></script>
-<script src="js/app.js"></script>
-</body>
-</html>
+<script src="js/api.js"></script><script src="js/app.js"></script>
+</body></html>

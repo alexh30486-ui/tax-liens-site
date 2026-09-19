@@ -15,13 +15,13 @@ Stack for real deployment:
 
 ## What’s new in 2.1
 
-- Security / observability headers on API + nginx config  
-- Gunicorn config + systemd service (hardened)  
-- Nginx site with CSP, frame deny, nosniff, rate-friendly proxy  
-- Meilisearch index + `/api/search` + dashboard search box  
-- JWT/Meili secrets rejected if still `CHANGE_ME…`  
-- `scripts/security_check.sh` smoke test  
-- `docs/SECURITY.md` checklist  
+- Security / observability headers on API + nginx config
+- Gunicorn config + systemd service (hardened)
+- Nginx site with CSP, frame deny, nosniff, rate-friendly proxy
+- Meilisearch index + `/api/search` + dashboard search box
+- JWT/Meili secrets rejected if still `CHANGE_ME…`
+- `scripts/security_check.sh` smoke test
+- `docs/SECURITY.md` checklist
 
 ## Local build (Docker Postgres + Meilisearch)
 
@@ -72,6 +72,12 @@ chmod +x scripts/security_check.sh
 ./scripts/security_check.sh http://127.0.0.1:8000
 ```
 
+## CI/CD
+
+The repository includes local pre-commit protection, GitHub secret/SAST/SCA/DAST
+gates, and health-gated blue-green deployment with automatic rollback. See
+[`docs/CICD.md`](docs/CICD.md) for setup and required GitHub/server configuration.
+
 ## Production: Nginx + systemd
 
 See `deploy/systemd/README.md` and:
@@ -93,9 +99,9 @@ APP_ENV=production
 
 ## Supabase / Neon
 
-1. Run `backend/schema.sql` in the SQL editor.  
-2. Set `DATABASE_URL` in `.env` (pooler URI + `sslmode=require` as required).  
-3. Seed + reindex as above.  
+1. Run `backend/schema.sql` in the SQL editor.
+2. Set `DATABASE_URL` in `.env` (pooler URI + `sslmode=require` as required).
+3. Seed + reindex as above.
 4. Auth remains FastAPI JWT (secrets only in `.env`).
 
 ## API
@@ -112,7 +118,7 @@ APP_ENV=production
 
 ## Secrets rule
 
-Never put keys in HTML, nginx, or git. Only `backend/.env` (and systemd `EnvironmentFile`).  
+Never put keys in HTML, nginx, or git. Only `backend/.env` (and systemd `EnvironmentFile`).
 Generate:
 
 ```bash
@@ -122,9 +128,9 @@ python3 -c "import secrets; print(secrets.token_hex(16))"  # Meili
 
 ## Docs
 
-- `docs/SECURITY.md` — headers, auth, HTTPS  
-- `docs/INADEQUACIES.md` — gaps fixed from v1  
-- `deploy/systemd/README.md` — install path  
+- `docs/SECURITY.md` — headers, auth, HTTPS
+- `docs/INADEQUACIES.md` — gaps fixed from v1
+- `deploy/systemd/README.md` — install path
 
 ## Disclaimer
 

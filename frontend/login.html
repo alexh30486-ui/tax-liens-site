@@ -1,42 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#f5f5f2">
 <title>Log in — Tax Lien Finder</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="css/styles.css">
 </head>
-<body data-auth-mode="login">
-<nav class="nav">
-  <a class="nav__mark" href="index.html">Tax Lien Finder</a>
+<body class="auth-body auth-v2" data-auth-mode="login">
+<nav class="auth-nav-v2">
+  <a class="brand" href="index.html"><span class="brand__symbol" aria-hidden="true">TL</span><span>Tax Lien Finder</span></a>
+  <a class="auth-nav-v2__link" href="signup.html">New here? <strong>Create account</strong></a>
 </nav>
 
-<main class="auth-page">
-  <a href="index.html" class="auth-back">← Back</a>
-  <h1 class="auth-headline">Welcome back</h1>
-  <p class="auth-sub">Log in to screen listings by value-to-lien ratio.</p>
+<main class="auth-stage-v2">
+  <section class="auth-card-v2">
+    <div class="auth-card-v2__form">
+      <a href="index.html" class="auth-back-v2" aria-label="Back to home">←</a>
+      <div class="auth-copy-v2">
+        <p class="auth-tag-v2"><span></span> Investor workspace</p>
+        <h1>Welcome<br>back.</h1>
+        <p>Pick up where you left off.</p>
+      </div>
+      <form id="authForm" class="auth-form-v2" novalidate>
+        <div class="form-group"><label class="form-label" for="email">Email</label><input class="form-input" type="email" id="email" name="email" placeholder="you@email.com" required autocomplete="email"><p class="form-error" id="emailError">Enter a valid email address.</p></div>
+        <div class="form-group"><label class="form-label" for="password">Password</label><input class="form-input" type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password"><p class="form-error" id="passwordError">Enter your password.</p></div>
+        <p class="form-error form-error--global" id="formError"></p>
+        <button type="submit" class="button button--dark form-submit" id="submitBtn">Enter workspace <span aria-hidden="true">↗</span></button>
+      </form>
+      <p class="auth-switch-v2">No account? <a href="signup.html">Start free</a></p>
+    </div>
 
-  <form id="authForm" novalidate>
-    <div class="form-group">
-      <label class="form-label" for="email">Email</label>
-      <input class="form-input" type="email" id="email" name="email" placeholder="name@company.com" required autocomplete="email">
-      <p class="form-error" id="emailError">Enter a valid email address.</p>
-    </div>
-    <div class="form-group">
-      <label class="form-label" for="password">Password</label>
-      <input class="form-input" type="password" id="password" name="password" placeholder="Your password" required autocomplete="current-password">
-      <p class="form-error" id="passwordError">Enter your password.</p>
-    </div>
-    <p class="form-error" id="formError"></p>
-    <button type="submit" class="btn btn-primary form-submit" id="submitBtn">Log in</button>
-  </form>
-  <p class="auth-switch">No account yet? <a href="signup.html">Sign up</a></p>
+    <aside class="auth-visual-v2" aria-label="Example opportunity signal">
+      <div class="auth-visual-v2__grid" aria-hidden="true"></div>
+      <div class="auth-visual-v2__top"><span>LIVE SIGNAL / 001</span><span class="auth-live-v2"><i></i> Public record</span></div>
+      <div class="auth-visual-v2__center">
+        <div class="auth-visual-v2__place"><span>Brooklyn, NY</span><small>NYC Department of Finance</small></div>
+        <div class="auth-visual-v2__ratio"><strong>3.4</strong><span>×</span></div>
+        <p>VALUE-TO-LIEN RATIO</p>
+        <div class="auth-visual-v2__meter"><span></span></div>
+        <div class="auth-visual-v2__values"><div><small>ASSESSED</small><b>$238K</b></div><div><small>LIEN</small><b>$70K</b></div></div>
+      </div>
+      <div class="auth-visual-v2__foot"><span>VALUE ÷ LIEN</span><strong>Visible math. Better signal.</strong></div>
+    </aside>
+  </section>
+  <p class="auth-disclaimer-v2">Screening tool only—not investment advice. Verify every figure against the county record.</p>
 </main>
-
-<script src="js/api.js"></script>
-<script src="js/auth-pages.js"></script>
-</body>
-</html>
+<script src="js/api.js"></script><script src="js/auth-pages.js"></script>
+</body></html>

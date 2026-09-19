@@ -39,23 +39,17 @@ async def get_listings(
     limit: int = Query(50, ge=1, le=200),
     pool: asyncpg.Pool = Depends(get_pool),
 ):
-    conditions = ["value_to_lien_ratio >= $1"]
-    params: list = [min_ratio]
-
-    if state:
-        params.append(state.upper())
-        conditions.append(f"state = ${len(params)}")
-    if county:
-        params.append(county)
-        conditions.append(f"county = ${len(params)}")
-
-    params.append(limit)
-    query = f"""
+    # Keep the query static and bind every user-controlled value. Optional
+    # filters are represented by NULL rather than interpolated SQL fragments.
+    query = """
         SELECT * FROM lien_opportunities
-        WHERE {' AND '.join(conditions)}
+        WHERE value_to_lien_ratio >= $1
+          AND ($2::text IS NULL OR state = $2)
+          AND ($3::text IS NULL OR county = $3)
         ORDER BY value_to_lien_ratio DESC
-        LIMIT ${len(params)}
+        LIMIT $4
     """
+    params = [min_ratio, state.upper() if state else None, county or None, limit]
 
     try:
         async with pool.acquire() as conn:

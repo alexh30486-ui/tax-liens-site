@@ -1,0 +1,32 @@
+[Unit]
+Description=Tax Lien Finder API (%i slot)
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=tlf
+Group=tlf
+EnvironmentFile=/run/tax-lien-finder/%i.env
+EnvironmentFile=/opt/tax-lien-finder/shared/backend.env
+ExecStart=/bin/bash -c 'cd "$RELEASE_DIR/backend" && exec "$RELEASE_DIR/backend/.venv/bin/gunicorn" -c "$RELEASE_DIR/deploy/gunicorn/gunicorn.conf.py" app.main:app'
+ExecReload=/bin/kill -s HUP $MAINPID
+KillSignal=SIGTERM
+TimeoutStopSec=35
+Restart=on-failure
+RestartSec=5
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/opt/tax-lien-finder/releases /opt/tax-lien-finder/shared
+CapabilityBoundingSet=
+AmbientCapabilities=
+LockPersonality=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target

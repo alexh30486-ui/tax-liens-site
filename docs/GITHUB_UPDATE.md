@@ -87,24 +87,24 @@ git push origin main
 
 ## Step 5 — Turn on GitHub security features (UI)
 
-1. Open https://github.com/alexh30486-ui/tax-liens-site/settings/security_analysis  
+1. Open https://github.com/alexh30486-ui/tax-liens-site/settings/security_analysis
 2. Enable:
    - **Dependency graph**
    - **Dependabot alerts**
    - **Dependabot security updates**
    - **Secret scanning**
    - **Push protection** (blocks commits that contain secrets)
-3. Open https://github.com/alexh30486-ui/tax-liens-site/settings/code_security  
-   - Enable **CodeQL** analysis if offered (matches the workflow job)
+3. Open the repository rulesets page and protect `main` with required pull
+   requests, blocked force pushes, and the three required checks listed below.
 
 ## Step 6 — Confirm CI ran
 
-1. https://github.com/alexh30486-ui/tax-liens-site/actions  
-2. Open the **Security (SAST + SCA)** workflow  
+1. https://github.com/alexh30486-ui/tax-liens-site/actions
+2. Open the **CI / Security / Deploy** workflow
 3. Expect:
-   - **Bandit** = SAST (your code patterns)
-   - **pip-audit** = SCA (FastAPI, passlib, PyJWT, etc. CVEs)
-   - **CodeQL** = deeper GitHub SAST (may need Code scanning enabled once)
+   - **Secret history scan** = Gitleaks across the complete Git history
+   - **SAST, SCA, syntax, and frontend** = Bandit, pip-audit, and validation
+   - **API smoke test and DAST** = live FastAPI checks plus OWASP ZAP
 
 ## What each CI piece does
 
@@ -112,18 +112,16 @@ git push origin main
 |------------------|------|---------|
 | Bandit | SAST | Risky Python (assert, hardcoded binds, bad crypto usage patterns) |
 | pip-audit | SCA | Known vulnerable versions of fastapi, passlib, pyjwt, … |
-| CodeQL | SAST | Deeper data-flow issues (SQL, XSS-like sinks, etc.) |
+| OWASP ZAP | DAST | Security issues visible against the running API |
 | Dependabot | SCA (ongoing) | Opens PRs when a dependency advisory appears |
-| Secret scanning | Secrets | Keys accidentally committed |
+| Gitleaks | Secrets | Keys in current files or Git history |
 
 ## Local dry-run (optional, before push)
 
 ```bash
-cd backend
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt bandit pip-audit
-bandit -r src/app -ll
-pip-audit -r requirements.txt
+python3 -m pip install pre-commit
+pre-commit install
+pre-commit run --all-files
 ```
 
 ## Do not do

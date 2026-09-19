@@ -38,10 +38,10 @@
 
 ## Common mistakes fixed
 
-1. Placeholder secrets rejected at boot  
-2. CORS methods limited to GET/POST/OPTIONS  
-3. Meilisearch key required for search (503 if down)  
-4. Server version not leaked via nginx `server_tokens off`  
+1. Placeholder secrets rejected at boot
+2. CORS methods limited to GET/POST/OPTIONS
+3. Meilisearch key required for search (503 if down)
+4. Server version not leaked via nginx `server_tokens off`
 5. Body size limited (`client_max_body_size 1m`)
 
 ## Quick header test

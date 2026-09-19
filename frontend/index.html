@@ -1,84 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tax Lien Finder — Liens worth more than they cost</title>
-<meta name="description" content="Screen tax lien opportunities from public county records. Every listing gets a value-to-lien ratio computed in SQL, with optional AI summary.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#f5f5f2">
+<title>Tax Lien Finder — Find the margin before you bid</title>
+<meta name="description" content="Screen public tax lien records by assessed-value-to-lien ratio. Transparent math, source-linked data, and optional AI notes.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
-<div class="page">
-  <nav class="nav">
-    <a class="nav__mark" href="index.html">Tax Lien Finder</a>
-    <div class="nav__actions">
-      <a class="nav__link" href="login.html">Log in</a>
-      <a class="btn btn-primary btn-sm" href="signup.html">Sign up</a>
-    </div>
+<body class="landing-page"><div class="landing-shell">
+  <nav class="landing-nav" aria-label="Main navigation">
+    <a class="brand" href="index.html" aria-label="Tax Lien Finder home"><span class="brand__symbol" aria-hidden="true">TL</span><span>Tax Lien Finder</span></a>
+    <div class="landing-nav__actions"><a class="landing-nav__link" href="#method">Method</a><a class="landing-nav__link" href="login.html">Log in</a><a class="button button--dark button--small" href="signup.html">Start free <span aria-hidden="true">↗</span></a></div>
   </nav>
-
   <main>
-    <section class="hero">
-      <p class="hero__stat">3.4x</p>
-      <p class="hero__stat-label">Example value-to-lien ratio from public NYC data</p>
-      <h1 class="hero__headline">Liens worth more than they cost.</h1>
-      <p class="hero__sub">We pull tax lien records from county sources and score every one by assessed value over lien amount — plain SQL, not a black-box score.</p>
-      <div class="hero__ctas">
-        <a href="signup.html" class="btn btn-primary">Start screening free</a>
-        <a href="login.html" class="btn btn-secondary">Log in to dashboard</a>
+    <section class="landing-hero">
+      <div class="landing-hero__copy">
+        <div class="eyebrow"><span class="eyebrow__dot"></span> Public-record screening, simplified</div>
+        <h1>Find the margin<br><span>before you bid.</span></h1>
+        <p class="landing-hero__lead">Turn scattered county records into a clear, comparable signal. Every ratio is transparent, source-linked, and ready to verify.</p>
+        <div class="landing-hero__actions"><a class="button button--dark" href="signup.html">Screen opportunities <span aria-hidden="true">↗</span></a><a class="text-link" href="#calculator">See the math <span aria-hidden="true">↓</span></a></div>
+        <div class="trust-row" aria-label="Product highlights"><span>Source-linked data</span><span>SQL-based ratios</span><span>No black-box score</span></div>
+      </div>
+      <div class="signal-card" aria-label="Example tax lien opportunity">
+        <div class="signal-card__topline"><span>Opportunity / 001</span><span class="status-chip"><span></span> Public record</span></div>
+        <div class="signal-card__location"><p>Brooklyn, New York</p><span>NYC Department of Finance</span></div>
+        <div class="signal-card__ratio"><span class="signal-card__value" id="heroRatio">3.4</span><span class="signal-card__x">×</span><span class="signal-card__label">value-to-lien ratio</span></div>
+        <div class="signal-card__meter" aria-hidden="true"><span id="heroMeter"></span></div>
+        <div class="signal-card__figures"><div><span>Assessed value</span><strong id="heroAssessed">$238,000</strong></div><div><span>Lien amount</span><strong id="heroLien">$70,000</strong></div></div>
+        <div class="signal-card__formula"><span>VALUE</span><b>÷</b><span>LIEN</span><b>=</b><strong id="heroFormulaRatio">3.40×</strong></div>
       </div>
     </section>
-
-    <section class="section section--alt">
-      <h2 class="section__title">How it works</h2>
-      <p class="section__intro">Three steps. The math is visible on every listing.</p>
-      <div class="ledger">
-        <div class="ledger-row">
-          <span class="ledger-row__num">01</span>
-          <div>
-            <p class="ledger-row__title">Pull the records</p>
-            <p class="ledger-row__body">Ingest lien and assessment data from county open data (NYC Socrata first).</p>
-          </div>
-        </div>
-        <div class="ledger-row">
-          <span class="ledger-row__num">02</span>
-          <div>
-            <p class="ledger-row__title">Score the ratio</p>
-            <p class="ledger-row__body">Every active lien gets value ÷ amount in Postgres. Filter in SQL.</p>
-          </div>
-        </div>
-        <div class="ledger-row">
-          <span class="ledger-row__num">03</span>
-          <div>
-            <p class="ledger-row__title">Read the summary</p>
-            <p class="ledger-row__body">Optional Gemini note flags ratio and obvious risk next to the raw numbers.</p>
-          </div>
-        </div>
+    <section class="calculator-section" id="calculator">
+      <div class="section-heading"><p class="section-kicker">Instant signal</p><h2>Understand the ratio in seconds.</h2><p>Enter two public-record figures. The result updates instantly—no proprietary weighting, no mystery model.</p></div>
+      <div class="ratio-tool">
+        <div class="ratio-tool__inputs"><div class="ratio-tool__field"><label for="assessedValue">Assessed property value</label><div class="money-input"><span>$</span><input id="assessedValue" type="number" min="0" step="1000" value="238000" inputmode="decimal"></div></div><div class="ratio-tool__field"><label for="lienAmount">Tax lien amount</label><div class="money-input"><span>$</span><input id="lienAmount" type="number" min="1" step="1000" value="70000" inputmode="decimal"></div></div></div>
+        <div class="ratio-tool__result" aria-live="polite"><p>Your value-to-lien ratio</p><div><strong id="ratioResult">3.40</strong><span>×</span></div><p id="ratioExplanation">The assessed value is 3.40 times the lien amount.</p><a href="signup.html">Find records with this margin <span aria-hidden="true">→</span></a></div>
       </div>
     </section>
-
-    <section class="section">
-      <h2 class="section__title">Built for DIY investors</h2>
-      <p class="section__intro">Screen by margin before you dig into county PDFs. Free while in beta.</p>
-      <a href="signup.html" class="btn btn-primary">Create account</a>
+    <section class="method-section" id="method">
+      <div class="section-heading section-heading--compact"><p class="section-kicker">A cleaner workflow</p><h2>From county file to shortlist.</h2></div>
+      <div class="method-grid">
+        <article class="method-card"><span class="method-card__number">01</span><div class="method-card__icon" aria-hidden="true">⌁</div><h3>Collect</h3><p>Ingest public records while preserving the address, parcel ID, and original county source.</p></article>
+        <article class="method-card"><span class="method-card__number">02</span><div class="method-card__icon" aria-hidden="true">÷</div><h3>Compare</h3><p>Calculate assessed value divided by lien amount in SQL, then filter by your minimum ratio.</p></article>
+        <article class="method-card"><span class="method-card__number">03</span><div class="method-card__icon" aria-hidden="true">⌕</div><h3>Verify</h3><p>Search quickly, review optional AI notes, and confirm every figure against the linked public record.</p></article>
+      </div>
     </section>
+    <section class="proof-section">
+      <div><p class="section-kicker">Designed for due diligence</p><h2>The numbers stay visible.<br>The judgment stays yours.</h2></div>
+      <div class="proof-list"><div><span>01</span><p><strong>Deterministic scoring</strong>Same inputs, same result—every time.</p></div><div><span>02</span><p><strong>Direct traceability</strong>Keep the county source beside the calculation.</p></div><div><span>03</span><p><strong>AI stays optional</strong>Plain-language notes never replace the raw figures.</p></div></div>
+    </section>
+    <section class="closing-cta"><p class="section-kicker">Free while in beta</p><h2>Start with the math.<br>Then do the homework.</h2><p>Build a focused shortlist from public tax lien records. No card required.</p><a class="button button--light" href="signup.html">Create your account <span aria-hidden="true">↗</span></a></section>
   </main>
-
-  <footer class="footer">
-    Tax Lien Finder is a screening tool, not investment advice. Verify all figures against the county record before bidding. Tax lien investing carries risk of total loss of principal.
-  </footer>
+  <footer class="landing-footer"><div class="brand"><span class="brand__symbol" aria-hidden="true">TL</span><span>Tax Lien Finder</span></div><p>Tax Lien Finder is a screening tool, not investment advice. Tax lien investing carries risk, including total loss of principal. Verify all figures against the county record before bidding.</p><span>© <span id="year"></span></span></footer>
 </div>
 <script>
-  // If already logged in, offer a path to the app
-  if (localStorage.getItem('tlf_access_token')) {
-    const actions = document.querySelector('.nav__actions');
-    if (actions) {
-      actions.innerHTML = '<a class="btn btn-primary btn-sm" href="app.html">Open dashboard</a>';
-    }
-  }
-</script>
-</body>
-</html>
+  const assessedInput=document.getElementById('assessedValue'),lienInput=document.getElementById('lienAmount'),ratioResult=document.getElementById('ratioResult'),ratioExplanation=document.getElementById('ratioExplanation'),heroRatio=document.getElementById('heroRatio'),heroFormulaRatio=document.getElementById('heroFormulaRatio'),heroAssessed=document.getElementById('heroAssessed'),heroLien=document.getElementById('heroLien'),heroMeter=document.getElementById('heroMeter');
+  const currency=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
+  function updateRatio(){const assessed=Number(assessedInput.value),lien=Number(lienInput.value),valid=Number.isFinite(assessed)&&Number.isFinite(lien)&&assessed>=0&&lien>0,ratio=valid?assessed/lien:0,display=valid?ratio.toFixed(2):'—';ratioResult.textContent=display;heroRatio.textContent=valid?ratio.toFixed(1):'—';heroFormulaRatio.textContent=valid?display+'×':'—';heroAssessed.textContent=valid?currency.format(assessed):'—';heroLien.textContent=valid?currency.format(lien):'—';heroMeter.style.width=valid?Math.min(100,Math.max(8,ratio/5*100))+'%':'0%';ratioExplanation.textContent=valid?`The assessed value is ${display} times the lien amount.`:'Enter a value above $0 for both fields.'}
+  assessedInput.addEventListener('input',updateRatio);lienInput.addEventListener('input',updateRatio);document.getElementById('year').textContent=new Date().getFullYear();
+  if(localStorage.getItem('tlf_access_token')){const actions=document.querySelector('.landing-nav__actions');if(actions)actions.innerHTML='<a class="landing-nav__link" href="#method">Method</a><a class="button button--dark button--small" href="app.html">Open dashboard <span aria-hidden="true">↗</span></a>'}
+</script></body></html>
